@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import {
-  calcAll, DATA, PY_DATA, LABELS, DESCS, CORE_ORDER, NumerologyResult,
+  calcAll, calcPinnacles, DATA, PY_DATA, LABELS, DESCS, CORE_ORDER, NumerologyResult, PinnacleEntry,
 } from "@/lib/numerology";
 import { calcCompatibility, CompatibilityResult } from "@/lib/compatibility";
 
@@ -438,6 +438,44 @@ export default function Home() {
                   </div>
                 </div>
                 {active==="personalYear"&&<div style={S.panel}>{renderDetail("personalYear",results.personalYear)}</div>}
+
+                {/* ── ピナクルナンバー */}
+                {(()=>{
+                  const pinnacles: PinnacleEntry[] = calcPinnacles(date);
+                  return (
+                    <div style={{marginTop:28}}>
+                      <p style={{fontSize:10,letterSpacing:4,textTransform:"uppercase" as const,color:C.accent,marginBottom:4}}>Pinnacle Numbers</p>
+                      <p style={{fontSize:11,color:"rgba(155,143,192,.55)",marginBottom:18}}>人生の4つのサイクルで訪れるテーマと機会</p>
+                      {pinnacles.map((p)=>(
+                        <div key={p.index} style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(155,143,192,.15)",borderRadius:12,padding:"18px 20px",marginBottom:12}}>
+                          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:12}}>
+                            <div style={{width:56,height:56,borderRadius:"50%",background:"rgba(100,60,200,.15)",border:"1px solid rgba(155,143,192,.3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                              <span style={{fontSize:26,color:C.fg,fontWeight:"normal" as const,filter:"drop-shadow(0 0 8px rgba(200,160,255,.5))"}}>{p.number}</span>
+                            </div>
+                            <div>
+                              <p style={{fontSize:9,letterSpacing:3,color:C.accent,textTransform:"uppercase" as const,marginBottom:3}}>
+                                第{p.index}ピナクル
+                                <span style={{color:"rgba(155,143,192,.6)"}}>
+                                  {p.startAge}歳〜{p.endAge!=null?`${p.endAge}歳`:"生涯"}
+                                </span>
+                              </p>
+                              <p style={{fontSize:14,color:"#e8c8f8",letterSpacing:1}}>{p.theme}</p>
+                            </div>
+                          </div>
+                          <div style={{borderLeft:"2px solid rgba(155,143,192,.25)",paddingLeft:14,marginBottom:10}}>
+                            <p style={{fontSize:9,letterSpacing:2,color:"#a8d8b8",textTransform:"uppercase" as const,marginBottom:4}}>✦ 才能・機会</p>
+                            <p style={{fontSize:12,color:"rgba(232,223,200,.8)",lineHeight:1.75}}>{p.talent}</p>
+                          </div>
+                          <div style={{borderLeft:"2px solid rgba(224,168,168,.25)",paddingLeft:14}}>
+                            <p style={{fontSize:9,letterSpacing:2,color:"#e0a8a8",textTransform:"uppercase" as const,marginBottom:4}}>▲ 課題</p>
+                            <p style={{fontSize:12,color:"rgba(232,223,200,.8)",lineHeight:1.75}}>{p.challenge}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+
                 <div style={S.btnRow}>
                   <button style={S.pdfBtn} onClick={()=>onExportPDF(results,name,date)} disabled={pdfLoading}>{pdfLoading?"生成中…":"↓ PDF出力"}</button>
                   <button style={{...S.saveBtn,...(savedId?{opacity:.55,cursor:"default"}:{})}} onClick={onSave} disabled={saveLoading||!!savedId}>

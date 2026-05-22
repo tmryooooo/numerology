@@ -105,3 +105,67 @@ export const DESCS: Record<string, string> = {
 };
 
 export const CORE_ORDER = ["lifePath","birthday","destiny","soul","personality","maturity"];
+
+// ── ピナクルナンバー ──────────────────────────
+export interface PinnacleDesc {
+  theme: string;
+  talent: string;
+  challenge: string;
+}
+
+export interface PinnacleEntry {
+  index: number;
+  number: number;
+  startAge: number;
+  endAge: number | null;
+  theme: string;
+  talent: string;
+  challenge: string;
+}
+
+export const PINNACLE_DESC: Record<number, PinnacleDesc> = {
+  1:  { theme:"自立と開拓", talent:"独自のビジョンで新しい道を切り開く力。リーダーシップと行動力が際立つ時期。", challenge:"孤独感や頑固さを手放し、他者の助けを受け入れること。" },
+  2:  { theme:"協力と調和", talent:"人間関係の構築・外交術・細やかな気配りが才能として開花する時期。", challenge:"自分の意見を持ち、自己犠牲になりすぎないこと。" },
+  3:  { theme:"創造と表現", talent:"コミュニケーション・芸術的才能・社交性が花開き、喜びを周囲に広げられる時期。", challenge:"エネルギーを分散させず、一つのことを深める集中力を育てること。" },
+  4:  { theme:"基盤作りと努力", talent:"着実な積み上げで安定した土台を構築する力。誠実さと責任感が評価される時期。", challenge:"完璧主義や硬直した思考を手放し、変化への柔軟性を持つこと。" },
+  5:  { theme:"変化と自由", talent:"多様な経験・冒険・適応力が人生を豊かにする。新しい可能性が次々と広がる時期。", challenge:"一つのことを完成させる忍耐を育て、衝動的な変化を慎重に選ぶこと。" },
+  6:  { theme:"愛と責任", talent:"家族・地域・人への奉仕と深い愛情が開花する。人の心を癒す力が増す時期。", challenge:"過干渉や完璧主義を手放し、相手の自立を尊重すること。" },
+  7:  { theme:"探求と内省", talent:"深い分析力・専門知識・霊的洞察が磨かれる。真実を追求することで唯一無二の存在になれる時期。", challenge:"孤立を避け、人との繋がりを大切にすること。" },
+  8:  { theme:"成功と権力", talent:"ビジネス力・リーダーシップ・物質的な成功が花開く。大きな目標を現実に変える力が与えられる時期。", challenge:"権力欲や物質主義に偏らず、精神的な豊かさとのバランスを保つこと。" },
+  9:  { theme:"完成と博愛", talent:"人類への奉仕・芸術・精神的な豊かさが頂点に達する。大きな視野で世界を愛せる時期。", challenge:"過去を手放し、次のサイクルへ進む勇気を持つこと。" },
+  11: { theme:"霊的覚醒（マスター数）", talent:"直感・インスピレーション・精神的な使命が強まる特別な時期。人々を照らす光となる可能性を持つ。", challenge:"高い感受性からくる不安やプレッシャーを乗り越え、使命を地に足つけて実行すること。" },
+  22: { theme:"偉大な建設（マスター数）", talent:"壮大なビジョンを現実に変える卓越した実現力が与えられる。世界に残る何かを作れる時期。", challenge:"責任の重さに押し潰されず、自分のペースで着実に進むこと。" },
+};
+
+export function calcPinnacles(date: string): PinnacleEntry[] {
+  const [yearStr, monthStr, dayStr] = date.split("-");
+  const month = parseInt(monthStr);
+  const day   = parseInt(dayStr);
+  const year  = parseInt(yearStr);
+
+  const m = reduce(month);
+  const d = reduce(day);
+  const y = reduce(String(year).split("").reduce((a,b)=>a+parseInt(b),0));
+
+  const p1 = reduce(m + d);
+  const p2 = reduce(d + y);
+  const p3 = reduce(p1 + p2);
+  const p4 = reduce(m + y);
+
+  const allDigits = date.replace(/-/g,"").split("").map(Number);
+  const lp = reduce(allDigits.reduce((a,b)=>a+b,0));
+  const lpBase = lp === 11 ? 2 : lp === 22 ? 4 : lp;
+
+  const end1 = 36 - lpBase;
+  const end2 = end1 + 9;
+  const end3 = end2 + 9;
+
+  const desc = (n: number) => PINNACLE_DESC[n] ?? PINNACLE_DESC[1];
+
+  return [
+    { index:1, number:p1, startAge:0,    endAge:end1, ...desc(p1) },
+    { index:2, number:p2, startAge:end1, endAge:end2, ...desc(p2) },
+    { index:3, number:p3, startAge:end2, endAge:end3, ...desc(p3) },
+    { index:4, number:p4, startAge:end3, endAge:null, ...desc(p4) },
+  ];
+}
